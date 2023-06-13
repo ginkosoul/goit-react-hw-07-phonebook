@@ -1,39 +1,57 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+import { createSlice, isAnyOf } from '@reduxjs/toolkit';
+import { createContactsThunk, deleteContactsThunk, getContactsThunk } from './thunk';
 
+const STATUS = {
+	PENDING: 'pending',
+	FULFILLED: 'fulfilled',
+	REJECTED: 'rejected',
+}
+const thunks = [getContactsThunk, createContactsThunk, deleteContactsThunk]
+
+const options = (status) => thunks.map((el) => el[status])
+
+const handlePending = (state) => {
+	state.isLoading = true;
+  state.error = null;
+}
+
+const handleFulfilled = (state) => {
+  console.log("handlefulfilled");
+	state.isLoading = false;
+}
+const handleFulfilledGet = (state, { payload }) => {
+  console.log("handlegetcontact",payload);
+	state.items = payload;
+}
+const handleFulfilledDel = (state, { payload }) => {
+	state.items = state.items.filter((el) => el.id !== payload.id)
+}
+const handleFulfilledCreate = (state, { payload }) => {
+	state.items.push(payload)
+}
+const handleRejected = (state, { payload }) => {
+	state.isLoading = false;
+	state.error = payload
+}
 export const contactsSlice = createSlice({
   name: 'contacts',
   initialState: {
-    contacts: [],
-    filter: ''
+    items: [],
+    isLoading: false,
+    error: null,
   },
-  reducers: {
-    addContact: (state, action) => {
-      state.contacts.push(action.payload)
-    },
-    removeContact: (state, action) => {
-      state.contacts = state.contacts.filter(({ id }) => id !== action.payload)
-    },
-    addFilter: (state, action) => {
-      state.filter = action.payload
-    },
-  },
+  extraReducers: (builder) => {
+		const { PENDING, FULFILLED, REJECTED } = STATUS
+		builder
+			.addCase(getContactsThunk.fulfilled, handleFulfilledGet)
+			.addCase(createContactsThunk.fulfilled, handleFulfilledCreate)
+			.addCase(deleteContactsThunk.fulfilled, handleFulfilledDel)
+			.addMatcher(isAnyOf(...options(PENDING)), handlePending)
+			.addMatcher(isAnyOf(...options(FULFILLED)), handleFulfilled)
+			.addMatcher(isAnyOf(...options(REJECTED)), handleRejected)
+	},
 })
 
-const persistConfig = {
-    key: 'contacts',
-    storage,
-    whitelist: ['contacts'],
-  };
+export const getContacts = (state) => state.contacts.items
 
-export const { addContact, removeContact, addFilter } = contactsSlice.actions
-
-export const contactsReducer = persistReducer(persistConfig, contactsSlice.reducer);
-
-
-export const getContacts = (state) => state.contacts.contacts
-
-export const getFilter = (state) => state.contacts.filter
-
-export default contactsSlice.reducer
+export const contactsReducer = contactsSlice.reducer

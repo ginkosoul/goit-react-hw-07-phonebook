@@ -2,8 +2,9 @@ import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
 import css from '../Contacts/ContactForm.module.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { getContacts, addContact } from 'redux/contactsSlice';
+import { getContacts } from 'redux/contactsSlice';
 import { nanoid } from 'nanoid';
+import { createContactsThunk } from 'redux/thunk';
 
 // const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
@@ -38,7 +39,7 @@ export default function ContactForm() {
       return;
     }
     const newElement = { ...value, id: nanoid() };
-    dispatch(addContact(newElement));
+    dispatch(createContactsThunk(newElement));
   };
   return (
     <Formik
