@@ -9,7 +9,6 @@ export default function ContactList() {
   const filter = useSelector(getFilter);
   const contacts = useSelector(getContacts);
   const dispatch = useDispatch();
-  console.log(contacts);
   useEffect(() => {
     dispatch(getContactsThunk());
   }, [dispatch]);

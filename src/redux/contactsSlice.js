@@ -16,11 +16,9 @@ const handlePending = (state) => {
 }
 
 const handleFulfilled = (state) => {
-  console.log("handlefulfilled");
 	state.isLoading = false;
 }
 const handleFulfilledGet = (state, { payload }) => {
-  console.log("handlegetcontact",payload);
 	state.items = payload;
 }
 const handleFulfilledDel = (state, { payload }) => {

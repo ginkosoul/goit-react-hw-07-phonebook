@@ -6,7 +6,6 @@ export default function Filter() {
   const dispatch = useDispatch(getFilter);
 
   const onChange = e => {
-    console.log(e.target.value.trim());
     dispatch(addFilter(e.target.value.trim()));
   };
   return <input className={css.input} type="text" onChange={onChange} />;
